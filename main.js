@@ -7,6 +7,9 @@ const sections = [
   'section-userinfo',
   'section-tokenplay'
 ];
+let tokenTimerInterval = null;
+let playgroundTimerInterval = null;
+
 function showSection(id) {
   sections.forEach(sec => {
     document.getElementById(sec).style.display = (sec === id) ? '' : 'none';
@@ -91,11 +94,12 @@ function showTokenSection() {
   const token = getToken();
   document.getElementById('jwt-token').value = token || '';
   if (token) {
-    document.getElementById('token-decoded').innerHTML = renderDecodedToken(token);
+    renderDecodedTokenLive(token, 'token-decoded', 'token');
     document.getElementById('nav-logout').style.display = '';
   } else {
     document.getElementById('token-decoded').innerHTML = '';
     document.getElementById('nav-logout').style.display = 'none';
+    if (tokenTimerInterval) clearInterval(tokenTimerInterval);
   }
 }
 
@@ -105,6 +109,10 @@ document.getElementById('nav-logout').onclick = () => {
   // Clear token display
   document.getElementById('jwt-token').value = '';
   document.getElementById('token-decoded').innerHTML = '';
+  if (tokenTimerInterval) clearInterval(tokenTimerInterval);
+  // Clear playground display and timer
+  document.getElementById('tokenplay-result').innerHTML = '';
+  if (playgroundTimerInterval) clearInterval(playgroundTimerInterval);
   showSection('section-login');
   document.getElementById('nav-logout').style.display = 'none';
 };
@@ -141,27 +149,39 @@ document.getElementById('tokenplay-form').onsubmit = (e) => {
     document.getElementById('tokenplay-result').textContent = 'Please paste a JWT token.';
     return;
   }
-  document.getElementById('tokenplay-result').innerHTML = renderDecodedToken(token);
+  renderDecodedTokenLive(token, 'tokenplay-result', 'playground');
 };
 
-// --- Helper: Decode JWT ---
-function renderDecodedToken(token) {
-  try {
-    const [header, payload, signature] = token.split('.');
-    const decode = (str) => JSON.parse(atob(str.replace(/-/g, '+').replace(/_/g, '/')));
-    const h = decode(header);
-    const p = decode(payload);
-    // Expiry
-    let exp = '';
-    if (p.exp) {
-      const now = Math.floor(Date.now() / 1000);
-      const seconds = p.exp - now;
-      exp = `<br><b>Expires in:</b> ${seconds > 0 ? seconds + 's' : 'Expired'}`;
+// --- Helper: Decode JWT and Live Timer ---
+function renderDecodedTokenLive(token, elementId, timerType) {
+  let exp = '';
+  let seconds = null;
+  let intervalRef = timerType === 'token' ? 'tokenTimerInterval' : 'playgroundTimerInterval';
+  if (window[intervalRef]) clearInterval(window[intervalRef]);
+  function update() {
+    try {
+      const [header, payload] = token.split('.');
+      const decode = (str) => JSON.parse(atob(str.replace(/-/g, '+').replace(/_/g, '/')));
+      const h = decode(header);
+      const p = decode(payload);
+      if (p.exp) {
+        const now = Math.floor(Date.now() / 1000);
+        seconds = p.exp - now;
+        exp = `<br><b>Expires in:</b> <span id="${elementId}-timer">${seconds > 0 ? seconds + 's' : 'Expired'}</span>`;
+      } else {
+        exp = '';
+      }
+      document.getElementById(elementId).innerHTML = `<b>Header:</b><pre>${JSON.stringify(h, null, 2)}</pre><b>Payload:</b><pre>${JSON.stringify(p, null, 2)}</pre>${exp}`;
+    } catch (e) {
+      document.getElementById(elementId).innerHTML = 'Invalid JWT token.';
     }
-    return `<b>Header:</b><pre>${JSON.stringify(h, null, 2)}</pre><b>Payload:</b><pre>${JSON.stringify(p, null, 2)}</pre>${exp}`;
-  } catch (e) {
-    return 'Invalid JWT token.';
   }
+  update();
+  window[intervalRef] = setInterval(() => {
+    update();
+    // If expired, stop timer
+    if (seconds !== null && seconds <= 0) clearInterval(window[intervalRef]);
+  }, 1000);
 }
 
 // --- On Load: Show token if present ---
