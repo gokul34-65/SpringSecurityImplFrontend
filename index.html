@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JWT Auth Demo</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <h1>Spring Boot JWT Auth Demo</h1>
+    <nav>
+      <button id="nav-register">Register</button>
+      <button id="nav-login">Login</button>
+      <button id="nav-token">Token</button>
+      <button id="nav-userinfo">User Info</button>
+      <button id="nav-tokenplay">Token Playground</button>
+      <button id="nav-logout" style="display:none;">Logout</button>
+    </nav>
+    <section id="section-register" class="section">
+      <h2>Register</h2>
+      <form id="register-form">
+        <input type="text" id="register-username" placeholder="Username" required /><br />
+        <input type="password" id="register-password" placeholder="Password" required /><br />
+        <select id="register-role">
+          <option value="2">USER</option>
+          <option value="1">ADMIN</option>
+        </select><br />
+        <button type="submit">Register</button>
+      </form>
+      <div id="register-result"></div>
+    </section>
+    <section id="section-login" class="section" style="display:none;">
+      <h2>Login</h2>
+      <form id="login-form">
+        <input type="text" id="login-username" placeholder="Username" required /><br />
+        <input type="password" id="login-password" placeholder="Password" required /><br />
+        <button type="submit">Login</button>
+      </form>
+      <div id="login-result"></div>
+    </section>
+    <section id="section-token" class="section" style="display:none;">
+      <h2>Your JWT Token</h2>
+      <textarea id="jwt-token" rows="5" cols="60" readonly></textarea>
+      <div id="token-decoded"></div>
+    </section>
+    <section id="section-userinfo" class="section" style="display:none;">
+      <h2>User Info</h2>
+      <div style="margin-bottom: 1em; color: #555; font-size: 0.98em;">
+        <b>Note:</b> The information below is extracted directly from the database.<br>
+        Passwords are stored and verified using one-way hashing with the <b>BCrypt</b> library. The password you see is a hashed value, not the original password.
+      </div>
+      <button id="fetch-userinfo">Fetch My Info</button>
+      <pre id="userinfo-result"></pre>
+    </section>
+    <section id="section-tokenplay" class="section" style="display:none;">
+      <h2>Token Playground</h2>
+      <form id="tokenplay-form">
+        <textarea id="tokenplay-input" rows="3" cols="60" placeholder="Paste JWT token here..."></textarea><br />
+        <button type="submit">Decode Token</button>
+      </form>
+      <div id="tokenplay-result"></div>
+    </section>
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>
