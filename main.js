@@ -184,9 +184,81 @@ function renderDecodedTokenLive(token, elementId, timerType) {
   }, 1000);
 }
 
-// --- On Load: Show token if present ---
+// --- Burger Menu & Slideout Logic ---
+// Support multiple burger icons (use class instead of duplicate IDs)
+const burgerIcons = document.querySelectorAll('.burger-icon');
+const slideoutMenu = document.getElementById('slideout-menu');
+const slideoutContent = document.getElementById('slideout-content');
+const closeSlideout = document.getElementById('close-slideout');
+const slideNavBtns = {
+  'slide-nav-register': 'section-register',
+  'slide-nav-login': 'section-login',
+  'slide-nav-token': 'section-token',
+  'slide-nav-userinfo': 'section-userinfo',
+  'slide-nav-tokenplay': 'section-tokenplay',
+};
+const slideNavLogout = document.getElementById('slide-nav-logout');
+
+function openSlideout() {
+  slideoutMenu.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeSlideoutMenu() {
+  slideoutMenu.classList.remove('open');
+  document.body.style.overflow = '';
+}
+// Open on burger icon click (support all .burger-icon)
+burgerIcons.forEach(icon => {
+  icon.addEventListener('click', openSlideout);
+});
+// Close on close icon
+closeSlideout && closeSlideout.addEventListener('click', closeSlideoutMenu);
+// Close on click outside
+slideoutMenu && slideoutMenu.addEventListener('click', (e) => {
+  if (e.target === slideoutMenu) closeSlideoutMenu();
+});
+// Nav button handlers
+Object.entries(slideNavBtns).forEach(([btnId, sectionId]) => {
+  const btn = document.getElementById(btnId);
+  if (btn) {
+    btn.onclick = () => {
+      showSection(sectionId);
+      closeSlideoutMenu();
+    };
+  }
+});
+// Logout handler
+if (slideNavLogout) {
+  slideNavLogout.onclick = () => {
+    clearToken();
+    document.getElementById('jwt-token').value = '';
+    document.getElementById('token-decoded').innerHTML = '';
+    if (tokenTimerInterval) clearInterval(tokenTimerInterval);
+    document.getElementById('tokenplay-result').innerHTML = '';
+    if (playgroundTimerInterval) clearInterval(playgroundTimerInterval);
+    showSection('section-login');
+    document.getElementById('nav-logout').style.display = 'none';
+    slideNavLogout.style.display = 'none';
+    closeSlideoutMenu();
+  };
+}
+// Sync logout button visibility
+function syncLogoutButtons() {
+  const token = getToken();
+  const show = !!token;
+  document.getElementById('nav-logout').style.display = show ? '' : 'none';
+  if (slideNavLogout) slideNavLogout.style.display = show ? '' : 'none';
+}
+// Patch showTokenSection to sync logout buttons
+const origShowTokenSection = showTokenSection;
+showTokenSection = function() {
+  origShowTokenSection();
+  syncLogoutButtons();
+};
+// On load, sync logout buttons
 window.onload = () => {
   if (getToken()) {
     showTokenSection();
   }
+  syncLogoutButtons();
 }; 

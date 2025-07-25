@@ -7,8 +7,27 @@
     <link rel="stylesheet" href="/style.css" />
   </head>
   <body>
-    <h1>Spring Boot JWT Auth Demo</h1>
-    <nav>
+    <!-- Mobile header (burger + title) -->
+    <div class="mobile-header" style="display:none;">
+      <div id="burger-menu">
+        <span class="burger-icon" style="font-size:2em;cursor:pointer;">&#9776;</span>
+      </div>
+      <h1>Spring Boot JWT Auth Demo</h1>
+    </div>
+    <!-- Desktop title -->
+    <h1 class="desktop-title">Spring Boot JWT Auth Demo</h1>
+    <div id="slideout-menu">
+      <div id="slideout-content">
+        <span id="close-slideout" style="font-size:2em;cursor:pointer;">&times;</span>
+        <button id="slide-nav-register">Register</button>
+        <button id="slide-nav-login">Login</button>
+        <button id="slide-nav-token">Token</button>
+        <button id="slide-nav-userinfo">User Info</button>
+        <button id="slide-nav-tokenplay">Token Playground</button>
+        <button id="slide-nav-logout" style="display:none;">Logout</button>
+      </div>
+    </div>
+    <nav class="desktop-nav">
       <button id="nav-register">Register</button>
       <button id="nav-login">Login</button>
       <button id="nav-token">Token</button>
