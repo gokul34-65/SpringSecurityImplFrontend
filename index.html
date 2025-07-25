@@ -43,10 +43,12 @@
       <form id="register-form">
         <input type="text" id="register-username" placeholder="Username" required /><br />
         <input type="password" id="register-password" placeholder="Password" required /><br />
-        <select id="register-role">
-          <option value="2">USER</option>
-          <option value="1">ADMIN</option>
-        </select><br />
+        <div class="select-wrapper">
+          <select id="register-role">
+            <option value="2">USER</option>
+            <option value="1">ADMIN</option>
+          </select>
+        </div><br />
         <button type="submit">Register</button>
       </form>
       <div id="register-result"></div>
